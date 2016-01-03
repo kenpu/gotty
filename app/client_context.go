@@ -22,6 +22,7 @@ type clientContext struct {
 	request    *http.Request
 	connection *websocket.Conn
 	command    *exec.Cmd
+	sessName   string
 	pty        *os.File
 	writeMutex *sync.Mutex
 }
@@ -75,8 +76,8 @@ func (context *clientContext) goHandleClient() {
 
 		// Even if the PTY has been closed,
 		// Read(0 in processSend() keeps blocking and the process doen't exit
+		dockerKill(context.sessName)
 		context.command.Process.Signal(syscall.Signal(context.app.options.CloseSignal))
-
 		context.command.Wait()
 		context.connection.Close()
 		log.Printf("Connection closed: %s", context.request.RemoteAddr)
@@ -213,4 +214,10 @@ func (context *clientContext) processReceive() {
 			return
 		}
 	}
+}
+
+func dockerKill(name string) {
+	log.Printf("======== stopping container [%s] =======", name)
+	cmd := exec.Command("/usr/bin/docker", "kill", name)
+	cmd.Run()
 }

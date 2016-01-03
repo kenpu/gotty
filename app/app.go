@@ -24,6 +24,7 @@ import (
 	"github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/websocket"
 	"github.com/kr/pty"
+	"github.com/nu7hatch/gouuid"
 	"github.com/yudai/hcl"
 	"github.com/yudai/umutex"
 )
@@ -306,22 +307,20 @@ func (app *App) handleWS(w http.ResponseWriter, r *http.Request) {
 		conn.Close()
 		return
 	}
-	argv := app.command[1:]
-	if app.options.PermitArguments {
-		if init.Arguments == "" {
-			init.Arguments = "?"
-		}
-		query, err := url.Parse(init.Arguments)
-		if err != nil {
-			log.Print("Failed to parse arguments")
-			conn.Close()
-			return
-		}
-		params := query.Query()["arg"]
-		if len(params) != 0 {
-			argv = append(argv, params...)
-		}
+
+	if init.Arguments == "" {
+		init.Arguments = "?"
 	}
+	query, err := url.Parse(init.Arguments)
+	if err != nil {
+		log.Print("Failed to parse arguments")
+		conn.Close()
+		return
+	}
+	params := query.Query()
+	image := params.Get("os")
+	sessUuid, _ := uuid.NewV4()
+	sessName := sessUuid.String()
 
 	app.server.StartRoutine()
 
@@ -336,19 +335,20 @@ func (app *App) handleWS(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	cmd := exec.Command(app.command[0], argv...)
+	log.Printf("[%s] launching %s", sessName, image)
+	cmd := exec.Command("./scripts/launch-docker.sh", sessName, image)
 	ptyIo, err := pty.Start(cmd)
 	if err != nil {
 		log.Print("Failed to execute command")
 		return
 	}
-	log.Printf("Command is running for client %s with PID %d (args=%q)", r.RemoteAddr, cmd.Process.Pid, strings.Join(argv, " "))
 
 	context := &clientContext{
 		app:        app,
 		request:    r,
 		connection: conn,
 		command:    cmd,
+		sessName:   sessName,
 		pty:        ptyIo,
 		writeMutex: &sync.Mutex{},
 	}
