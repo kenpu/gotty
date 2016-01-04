@@ -323,7 +323,7 @@ func (app *App) handleWS(w http.ResponseWriter, r *http.Request) {
 	sessName := sessUuid.String()
 
 	var launch_args []string
-	launch_args = append(launch_args, sessName, image)
+	launch_args = append(launch_args, sessName, image, "__NO_WORKSPACE_YET__")
 	launch_args = append(launch_args, params["command"]...)
 
 	app.server.StartRoutine()
