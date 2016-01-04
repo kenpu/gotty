@@ -22,11 +22,20 @@ then
     exit 0
 fi
 
+bindir=`dirname $0`
+cd $bindir
+
+mnt="-v $PWD/prly-bin:/prly-bin:ro"
 if [[ -d $workspace ]]
 then
-    mnt="-v $workspace:/home/user/workspace:ro"
-else
-    mnt=""
+    mnt="$mnt -v $workspace:/home/user/workspace:ro"
 fi
 
-docker run --name $name -h docker $mnt --net none -it --rm -u=user $image /home/setup/bootstrap.sh $*
+docker run          \
+    --name $name    \
+    -h docker $mnt  \
+    --net none      \
+    -it             \
+    --rm            \
+    -u=user         \
+    $image /prly-bin/bootstrap.sh $*
