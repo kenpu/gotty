@@ -218,6 +218,6 @@ func (context *clientContext) processReceive() {
 
 func dockerKill(name string) {
 	log.Printf("======== stopping container [%s] =======", name)
-	cmd := exec.Command("/usr/bin/docker", "kill", name)
+	cmd := exec.Command("./scripts/stop-docker.sh", name)
 	cmd.Run()
 }

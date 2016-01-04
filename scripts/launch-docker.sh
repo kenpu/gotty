@@ -15,4 +15,4 @@ then
     exit 0
 fi
 
-docker run --name $name -it --rm $image $*
+docker run --name $name -h docker --net none -it --rm -u=user $image /home/setup/bootstrap.sh $*

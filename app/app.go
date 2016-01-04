@@ -322,6 +322,10 @@ func (app *App) handleWS(w http.ResponseWriter, r *http.Request) {
 	sessUuid, _ := uuid.NewV4()
 	sessName := sessUuid.String()
 
+	var launch_args []string
+	launch_args = append(launch_args, sessName, image)
+	launch_args = append(launch_args, params["command"]...)
+
 	app.server.StartRoutine()
 
 	if app.options.Once {
@@ -336,7 +340,7 @@ func (app *App) handleWS(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("[%s] launching %s", sessName, image)
-	cmd := exec.Command("./scripts/launch-docker.sh", sessName, image)
+	cmd := exec.Command("./scripts/launch-docker.sh", launch_args...)
 	ptyIo, err := pty.Start(cmd)
 	if err != nil {
 		log.Print("Failed to execute command")
