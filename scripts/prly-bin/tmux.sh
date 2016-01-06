@@ -14,7 +14,7 @@ tmux new-session -d -s presently
 tmux set-option mouse-select-pane on
 tmux set-option prefix C-a
 tmux set-option prefix2 F10
-tmux split-window -h
+tmux split-window -v
 
 tmux select-pane -t 0
 tmux send-keys "$c1" C-m
