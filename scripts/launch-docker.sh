@@ -22,13 +22,15 @@ then
     exit 0
 fi
 
+workspace=$HOME/$workspace
+
 bindir=`dirname $0`
 cd $bindir
 
 mnt="-v $PWD/prly-bin:/prly-bin:ro"
 if [[ -d $workspace ]]
 then
-    mnt="$mnt -v $workspace:/home/user/workspace:ro"
+    mnt="$mnt -v $workspace:/workspace:ro"
 fi
 
 docker run          \

@@ -4,6 +4,8 @@
 #
 
 cmd=$1; shift
+export PATH=$PATH:$HOME/bin/:/prly-bin/
+
 cd $HOME
 
 if [[ -d /workspace ]]
@@ -15,6 +17,8 @@ then
     export PATH=$HOME/workspace:$PATH
 
     [[ -f ./env.sh ]] && source env.sh
+
+    echo "CMD=$cmd"
 
     if [[ -z "$cmd" && -f "startup.sh" ]]
     then
